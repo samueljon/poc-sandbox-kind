@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: argocd-poc
+  labels:
+    example: basic
+spec:
+  rbac:
+    defaultPolicy: "role:readonly"
+    policy: |
+      g, cluster-admins, role:admin
+      g, argocdadmins, role:admin
+      g, argocdusers, role:readonly
+    scopes: "[groups]"
+  repo:
+    resources:
+      limits:
+        cpu: "1"
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+  dex:
+    openShiftOAuth: false
+    groups:
+      - argocdusers
+      - argocdadmins
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+
