@@ -55,6 +55,9 @@ spec:
       enabled: true
   sso:
     dex:
+      groups:
+        - argocdusers
+        - argocdadmins
       resources:
         limits:
           cpu: 500m
