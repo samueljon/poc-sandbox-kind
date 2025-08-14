@@ -2,7 +2,8 @@
 
 ## Introduction
 
-This is a proof-of-concept installation with kind. The purpose of this POC is to be able to test the basic functionality of ArgoCD and Crossplane on your own laptop.
+This is a proof-of-concept installation with kind. The purpose of this POC is to be able to test
+the basic functionality of ArgoCD, Crossplane and Kro on your own laptop.
 
 ## How to run
 
@@ -14,12 +15,32 @@ Go into the cloned directory and execute the following:
 ./kind-bootstrap.sh
 ```
 
-What this will do is install Kubernetes 1.32.2 kind cluster, followed by [olm](https://olm.operatorframework.io/). Once `olm` has been installed a namespace `argocd` will be created were we will install `catalogsource`, `operator group` and a `subscription`. Lastly when these items are installed we create an instance of argocd called `argocd-pod` within the argocd namespace. Lastly we are installing Crossplane V2 Preview.
+What this will do is install Kubernetes 1.33.1 kind cluster, followed by [olm](https://olm.operatorframework.io/). Once `olm` has been installed a namespace `argocd` will be created were we will install `catalogsource`, `operator group` and a `subscription`. Lastly when these items are installed we create an instance of argocd called `argocd-pod` within the argocd namespace. Lastly we are installing Crossplane V2 and KRO.
+
+## How to connect to ArgoCD
+
+Obtaining password for the username `admin`
+
+```shell
+kubectl get secret argocd-poc-cluster -n argocd -ojsonpath='{.data.admin\.password}' | base64 -d
+```
+
+Accessing the dasboard via port-forwarding
+
+```shell
+kubectl port-forward -n argocd service/argocd-poc-server --address=0.0.0.0 58645:443
+```
+
+## Crossplane support
+
+Crossplane 2 preview support is also installed in this kind-boostrap.
+
+## Additional notes
 
 > Note about the argocd-poc-instance shown below: A role-based-access (RBAC) rules have been added. There are 3 groups defined `cluster-admins`, `argocdadmins` and `argocd-users` where the groups with admin in their names will have argocd admin role whereas argocdusers have readonly permissions. In addition we need to map these groups into `spec.dex.groups` so that we can log in.
 
 ```yaml
-apiVersion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1beta1
 kind: ArgoCD
 metadata:
   name: argocd-poc
@@ -54,21 +75,3 @@ spec:
         cpu: 250m
         memory: 128Mi
 ```
-
-## How to connect to ArgoCD
-
-Obtaining password for the username `admin`
-
-```shell
-kubectl get secret argocd-poc-cluster -n argocd -ojsonpath='{.data.admin\.password}' | base64 -d
-```
-
-Accessing the dasboard via port-forwarding
-
-```shell
-kubectl port-forward -n argocd service/argocd-poc-server --address=0.0.0.0 58645:443
-```
-
-## Crossplane support
-
-Crossplane 2 preview support is also installed in this kind-boostrap.

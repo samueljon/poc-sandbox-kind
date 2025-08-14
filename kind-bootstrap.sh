@@ -90,15 +90,29 @@ echo "------------------------------------------------------"
 echo "Installing Crossplane helm chart at $(date +"%T")"
 echo "------------------------------------------------------"
 
-#helm repo add crossplane-stable https://charts.crossplane.io/stable
-helm repo add crossplane-preview https://charts.crossplane.io/preview
+helm repo add crossplane-stable https://charts.crossplane.io/stable
 helm repo update
 
-#helm upgrade --install crossplane crossplane-stable/crossplane --namespace crossplane-system --create-namespace --wait
 helm install crossplane \
 --namespace crossplane-system \
---create-namespace crossplane-preview/crossplane \
---version v2.0.0-preview.1 --wait
+--create-namespace crossplane-stable/crossplane --wait
+
+
+echo "------------------------------------------------------"
+echo "Installing kro.run helm chart at $(date +"%T")"
+echo "------------------------------------------------------"
+
+export KRO_VERSION=$(curl -sL \
+    https://api.github.com/repos/kro-run/kro/releases/latest | \
+    jq -r '.tag_name | ltrimstr("v")'
+  )
+
+echo "Installing KRO Version: $KRO_VERSION"
+
+helm install kro oci://ghcr.io/kro-run/kro/kro \
+  --namespace kro \
+  --create-namespace \
+  --version=${KRO_VERSION}
 
 echo "------------------------------------------------------"
 echo "Initial setup finished at $(date +"%T")"
